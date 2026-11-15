@@ -77,10 +77,22 @@ export async function onRequestPost({ request, env }) {
     );
 
     if (!emailResponse.ok) {
-      await env.OTP_STORE.delete(emailKey);
-      await env.OTP_STORE.delete(ipKey);
-      return json({ error: "Could not send OTP. Please try again later." }, 502);
-    }
+  const providerError = await emailResponse.text();
+
+  console.error(
+    "EmailJS Error:",
+    emailResponse.status,
+    providerError.slice(0, 300)
+  );
+
+  await env.OTP_STORE.delete(emailKey);
+  await env.OTP_STORE.delete(ipKey);
+
+  return json({
+    error: "EmailJS Error: " + emailResponse.status,
+    details: providerError.slice(0, 300)
+  }, 502);
+}
 
     await env.OTP_STORE.put(
       `otp:${emailHash}`,
