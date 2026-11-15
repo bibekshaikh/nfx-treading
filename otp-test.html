@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NFX Treading OTP Test</title>
+</head>
+<body style="background:#071426;color:white;font-family:Arial;padding:25px">
+<h2>NFX Treading OTP Test</h2>
+<p>Enter your email to test OTP delivery.</p>
+<input id="email" type="email" placeholder="Enter your email"
+style="padding:12px;width:90%;max-width:320px">
+<br><br>
+<button id="send" onclick="sendOTP()"
+style="padding:12px 22px;background:#d5a83c;border:0;border-radius:6px">
+Send OTP
+</button>
+<p id="result"></p>
+<script>
+async function sendOTP() {
+  const email = document.getElementById("email").value.trim();
+  const result = document.getElementById("result");
+  const button = document.getElementById("send");
+
+  if (!email) {
+    result.textContent = "Please enter your email.";
+    return;
+  }
+
+  button.disabled = true;
+  result.textContent = "Sending OTP...";
+
+  try {
+    const response = await fetch("/api/send-otp", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email})
+    });
+    const data = await response.json();
+    result.textContent = data.message || data.error || "Response received.";
+  } catch (error) {
+    result.textContent = "Request failed. Please try again.";
+  } finally {
+    button.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
